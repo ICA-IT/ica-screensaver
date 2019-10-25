@@ -1,0 +1,113 @@
+; all changes to the original script template are:
+; Copyright (c) John Kuras 2019
+; changes made by John Kuras may be copied per WTFPL
+; the origial script template is:
+; Copyright (c) uib gmbh (www.uib.de)
+; The original sourcecode is owned by uib
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/en/credits/
+
+
+[Actions]
+requiredWinstVersion >= "4.11.4.6"
+ScriptErrorMessages=off
+
+DefVar $MsiId32$
+DefVar $UninstallProgram32$
+DefVar $MsiId64$
+DefVar $UninstallProgram64$
+DefVar $LogDir$
+DefVar $ProductId$  
+DefVar $MinimumSpace$
+DefVar $InstallDir32$
+DefVar $InstallDir64$
+DefVar $ExitCode$
+DefVar $LicenseRequired$
+DefVar $LicenseKey$
+DefVar $LicensePool$
+DefVar $INST_SystemType$
+DefVar $INST_architecture$
+DefVar $WinTypeExt$
+
+Set $INST_SystemType$ = GetSystemType
+set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
+
+
+Set $LogDir$ = "%opsiLogDir%"
+
+
+Set $WinTypeExt$ = "x64"
+if ($INST_SystemType$ = "x86 System")
+    Set $WinTypeExt$ = "x86"
+endif  
+
+; ----------------------------------------------------------------
+; - Please edit the following values                             -
+; ----------------------------------------------------------------
+Set $ProductId$       = "ica-screensaver"
+Set $MinimumSpace$    = "50 MB"
+; the path were we find the product after the installation
+Set $InstallDir32$      = "%ProgramFiles32Dir%\<path to the product>"
+Set $InstallDir64$      = "%ProgramFiles64Dir%\<path to the product>"
+Set $LicenseRequired$ = "false"
+Set $LicensePool$     = "p_" + $ProductId$
+; ----------------------------------------------------------------
+
+if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
+	LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+	isFatalError
+	; Stop process and set installation status to failed
+else
+	comment "Show product picture"
+	ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductId$
+	
+	if FileExists("%ScriptPath%\delsub3264.opsiscript")
+		comment "Start uninstall sub section"
+		Sub "%ScriptPath%\delsub3264.opsiscript"
+	endif
+	
+	comment "installing"
+
+	if (($INST_SystemType$ = "x86 System") and ($INST_architecture$ = "system specific")) or ($INST_architecture$ = "both") or ($INST_architecture$ = "32 only")
+		Message "Installing " + $ProductId$ + " 32 Bit..."
+		comment "Start setup program"
+		ChangeDirectory "%SCRIPTPATH%"
+		comment "Copy files"
+		Files_install_32 /32Bit
+		comment "Patch Registry"
+		Registry_install /32Bit /AllNTUserdats
+	endif
+
+	if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
+		Message "Installing " + $ProductId$ + " 64 Bit..."
+		comment "Start setup program"
+		ChangeDirectory "%SCRIPTPATH%"
+		comment "Copy files"
+		Files_install_64 /64Bit
+		comment "Patch Registry"
+		Registry_install /64Bit /AllNTUserdats
+	endif
+	
+endif
+
+[Files_install_32]
+; Copy 32 bit files into the system directory:
+;
+ copy "%ScriptPath%\files\$WinTypeExt$\screensaver4.scr" "%System%\"
+ copy "%ScriptPath%\files\$WinTypeExt$\glew32.dll" "%System%\"
+ copy "%ScriptPath%\files\ICA-logo-on-black.bmp" "%System%\"
+
+[Files_install_64]
+; Copy 64 bit files into the system directory:
+;
+ copy "%ScriptPath%\files\$WinTypeExt$\screensaver4.scr" "%System%\"
+ copy "%ScriptPath%\files\$WinTypeExt$\glew32.dll" "%System%\" 
+ copy "%ScriptPath%\files\ICA-logo-on-black.bmp" "%System%\"
+
+[Registry_install]
+; Set screensaver registry keys:
+;
+ openkey [HKEY_CURRENT_USER\Software\ICAscreensaver]
+ set "Bitmap" = "%System%\ICA-logo-on-black.bmp"
+ set "Tumble" = REG_DWORD:0001
+

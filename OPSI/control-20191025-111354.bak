@@ -1,0 +1,29 @@
+[Package]
+version: 1
+depends: 
+incremental: False
+
+[Product]
+type: localboot
+id: ica-screensaver
+name: ica-screensaver
+description: Install the ICA screensaver
+advice: This will copy the ICA branded screensaver to the client computer. It does not change screensaver settings.
+version: 1.0
+priority: 0
+licenseRequired: False
+productClasses: 
+setupScript: 
+uninstallScript: 
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
+
+[Changelog]
+ica-screensaver (1.0-1) stable; urgency=low
+
+Project created with opsi Package Builder 8.2.2
+
+ -- John Kuras <jkuras@islandchristianacademy.com>  Fri, 25 Oct 2019 10:35:11 +0000

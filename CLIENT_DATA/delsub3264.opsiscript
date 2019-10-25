@@ -1,0 +1,52 @@
+; all changes to the original script template are:
+; Copyright (c) John Kuras 2019
+; changes made by John Kuras may be copied per WTFPL
+; the origial script template is:
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib gmbh
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/en/credits/
+
+
+if (($INST_SystemType$ = "x86 System") and ($INST_architecture$ = "system specific")) or ($INST_architecture$ = "both") or ($INST_architecture$ = "32 only")
+	Message "Uninstalling " + $ProductId$ + " 32 Bit..."
+
+	comment "Delete files"
+	Files_uninstall_32 /32Bit
+	comment "Cleanup registry"
+	if (RegKeyExists("HKEY_LOCAL_MACHINE\SOFTWARE\ICAscreensaver","32bit"))
+		Registry_uninstall /32Bit /AllNTUserdats
+	endif
+endif
+
+if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
+	Message "Uninstalling " + $ProductId$ + " 64 Bit..."
+	
+	comment "Delete files"
+	Files_uninstall_64 /64Bit
+	comment "Cleanup registry"
+	if (RegKeyExists("HKEY_LOCAL_MACHINE\SOFTWARE\ICAscreensaver","64bit"))	
+		Registry_uninstall /64Bit /AllNTUserdats
+	endif
+endif
+
+
+[Files_uninstall_32]
+; delete the screensaver and bitmap (32 bit version):
+;
+ delete -f "%System%\screensaver4.scr"
+ delete -f "%System%\glew32.dll"
+ delete -f "%System%\ICA-logo-on-black.bmp"
+
+[Files_uninstall_64]
+; delete the screensaver and bitmap (64 bit version):
+;
+ del -f "%System%\screensaver4.scr"
+ del -f "%System%\glew32.dll" 
+ del -f "%System%\ICA-logo-on-black.bmp"
+
+[Registry_uninstall]
+; Example of deleting a registry key:
+;
+deletekey [HKEY_CURRENT_USER\Software\ICAscreensaver]
+

@@ -11,6 +11,7 @@
 *.ilk
 *.map
 *.exp
+*.scr
 
 # Precompiled Headers
 *.gch
@@ -50,3 +51,18 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# other opsi related files
+*.opsi
+*.md5
+*.zsync
+*.cab
+*.wim
+*.msi
+*.msp
+*.ref
+*.zip
+*.com
+*.sys
+*.res
+
